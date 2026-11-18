@@ -41,7 +41,7 @@ Set these variables on the backend service (replace `MySQL` with the exact datab
 
 The first production startup runs Flyway migration `V1__initial_schema.sql`, then creates the initial admin only if that email does not already exist. After the first successful deployment, remove the three `BOOTSTRAP_ADMIN_*` variables. The admin account remains in MySQL. Never use the local demo accounts in production.
 
-Set the Railway health check path to `/api/health`. Confirm the backend deploy logs show successful Flyway migration and application startup, then open `https://YOUR-RAILWAY-DOMAIN/api/health`; it should return `{"status":"ok","application":"echo-waste"}`.
+Set the Railway health check path to `/api/health`. Confirm the backend deploy logs show successful Flyway migration and application startup, then open `https://YOUR-RAILWAY-DOMAIN/api/health`; it should return `{"status":"ok","application":"echo-waste","database":"UP"}`. If the database probe fails, the endpoint returns HTTP 503 with `"status":"degraded"` and `"database":"DOWN"`.
 
 ## 4. Deploy the frontend
 
@@ -67,5 +67,5 @@ After Vercel gives you the production URL, set that exact origin in Railway as `
 - Production requires `DB_URL`, `DB_USER`, `DB_PASSWORD`, `JWT_SECRET`, and `FRONTEND_URL`; the app fails fast when they are absent.
 - Production schema changes must be added as new Flyway migrations. Do not edit an already-applied migration.
 - Production does not seed demo users or demo pickups. Admin access is provisioned with the one-time bootstrap variables above.
-- The project has no automated application tests yet; the CI workflow currently verifies frontend and backend builds.
+- The backend includes automated unit tests; CI runs them via `mvn verify`.
 - Before accepting real personal data, add an appropriate privacy notice and retention process, review account recovery and abuse controls, and rehearse database backup restoration.
