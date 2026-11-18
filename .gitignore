@@ -1,0 +1,21 @@
+# Java / Maven
+backend/target/
+backend/.mvn-runtime/
+backend/.mvn-repository/
+backend/data/
+.mvn-cache/
+
+# Node / Vite
+frontend/node_modules/
+frontend/dist/
+
+# Local environment files, databases, logs, and editor noise
+.env
+.env.*
+!.env.example
+*.db
+*.db-*
+backend/error-log.txt
+.idea/
+.vscode/
+*.log
