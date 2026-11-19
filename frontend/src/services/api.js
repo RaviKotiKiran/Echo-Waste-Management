@@ -1,9 +1,17 @@
 import axios from 'axios';
 
 // In local development, Vite proxies same-origin /api requests to Spring Boot.
-// Production deployments can set VITE_API_URL to the public API base URL.
+// Production deployments can override the default Render API with VITE_API_URL.
+const configuredApiUrl = import.meta.env.VITE_API_URL?.trim();
+const productionApiUrl = 'https://echo-waste-management.onrender.com/api';
+const apiBaseUrl = import.meta.env.DEV
+  ? configuredApiUrl || '/api'
+  : configuredApiUrl && /^https?:\/\/[^<>]+$/i.test(configuredApiUrl)
+    ? configuredApiUrl
+    : productionApiUrl;
+
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || '/api',
+  baseURL: apiBaseUrl,
   timeout: 12000,
 });
 
