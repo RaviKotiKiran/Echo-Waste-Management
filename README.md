@@ -11,14 +11,14 @@ React + Vite (Bootstrap layout, React Router, Axios)
 Spring Boot: Controller → Service → Repository → JPA Entity
                     │ JDBC
                     ▼
-          MySQL 8+
+       H2 for local development; MySQL 8+ in production
 ```
 
 ## Technology
 
 - Frontend: React 19, Vite, React Router, Axios, Bootstrap 5, React Icons, and project-owned responsive CSS.
 - Backend: Java 17, Spring Boot, Spring Web, Spring Security, JWT, Spring Data JPA, Bean Validation, Maven.
-- Database: MySQL 8+ for local development and deployment, with Flyway schema migrations in production. H2 is not an application dependency or runtime option.
+- Database: embedded H2 for zero-setup local development; MySQL 8+ for production, with Flyway-managed production schema migrations.
 
 ## Folder guide
 
@@ -28,7 +28,7 @@ Spring Boot: Controller → Service → Repository → JPA Entity
 - `backend/src/main/java/com/echo/waste/controller`: REST request/response handling.
 - `backend/src/main/java/com/echo/waste/service`: request, account, dashboard, and feedback business rules.
 - `backend/src/main/java/com/echo/waste/repository`: Spring Data database operations.
-- `backend/src/main/java/com/echo/waste/entity`: JPA persistence entities stored in MySQL.
+- `backend/src/main/java/com/echo/waste/entity`: JPA persistence entities stored in the configured database.
 - `backend/src/main/java/com/echo/waste/dto`: validated API input and safe output records.
 - `backend/src/main/java/com/echo/waste/security` and `config`: JWT filter, stateless access rules, CORS, and local demo seeding.
 - `database`: MySQL database creation and reference schema.
@@ -41,22 +41,21 @@ Spring Boot: Controller → Service → Repository → JPA Entity
 - **In-app alerts**: residents hear about pickup and report updates, collectors receive assignment alerts, and admins get notified about new pickups and issues. The alert bell shows unread counts and links to the relevant screen.
 - **Collection calendar**: residents can view monthly pickup dates, request statuses, upcoming collections, and planned waste quantity from their saved requests.
 
-## Local Windows setup (MySQL required)
+## Local Windows setup
 
-The default `mysql` profile connects to MySQL at `localhost:3306`, using the `echo_waste` database and the `echo_user` local account. Hibernate updates the local schema and seeds demo users and one example pickup. Start the MySQL Server service before launching the backend.
+The app starts with an embedded H2 database by default, so MySQL is not required for local development. The database is stored under `backend/data/` and demo users plus one example pickup are seeded automatically. Production uses MySQL and never seeds demo accounts.
 
 > **Important:** npm commands are for the React frontend only. The `backend` is a Java/Maven project and does not contain `package.json`. Running `npm install` or `npm run` from `backend` will produce an `ENOENT package.json` error. You can launch each part using `start-backend.cmd` and `start-frontend.cmd` in the project root, or follow the commands below in separate terminals.
 
-### Prepare the MySQL database
+### Optional: use local MySQL
 
-Start the MySQL Server service and confirm it is listening on `localhost:3306`. If Windows reports an access or permissions error, start the service from Windows Services with administrator access. In MySQL Workbench, connect to your local server as a MySQL administrator, open `database/create-database.sql`, and execute it. It creates `echo_waste` and configures the local app account `echo_user` with password `echo_password`; it does not drop existing tables.
+To use MySQL instead of H2, start MySQL Server on `localhost:3306`. In MySQL Workbench, connect as an administrator, open `database/create-database.sql`, and execute it. It creates `echo_waste` and configures the local app account `echo_user` with password `echo_password`; it does not drop existing tables. The launcher detects MySQL on port 3306 and selects the `mysql` profile.
 
-For custom MySQL credentials, set `DB_URL`, `DB_USER`, and `DB_PASSWORD` in the same terminal. If you see `Access denied`, reconnect to MySQL Workbench as the administrator and rerun the SQL script. Do not put a real password in source files or chat.
+For custom MySQL credentials, set `DB_URL`, `DB_USER`, and `DB_PASSWORD` in the same terminal before launching. If you see `Access denied`, reconnect to MySQL Workbench as the administrator and rerun the SQL script. Do not put a real password in source files or chat.
 
 ### Start Echo locally
 
-1. Start the MySQL Server service and run `database/create-database.sql` once in Workbench if you have not already.
-2. From the project root in VS Code, run this single command:
+1. From the project root in VS Code, run this single command:
 
    ```powershell
    .\start-echo.cmd
@@ -64,9 +63,9 @@ For custom MySQL credentials, set `DB_URL`, `DB_USER`, and `DB_PASSWORD` in the 
 
 3. Keep the backend and frontend terminal windows open. Open the Vite URL shown in its terminal, normally `http://localhost:5173`.
 
-The launcher checks MySQL, reuses Echo if its API is already healthy, and selects a free backend port from `8081` to `8090` if needed. It passes the chosen port to the frontend proxy. Do not start a second backend manually. The launcher prints the API health URL. The project uses Java 17 or newer and MySQL 8+; the Maven wrapper manages Maven. For deployment, set `VITE_API_URL` to the public API base URL.
+The launcher uses H2 when MySQL is unavailable, reuses Echo if its API is already healthy, and selects a free backend port from `8081` to `8090` if needed. It passes the chosen port to the frontend proxy. Do not start a second backend manually. The launcher prints the API health URL. The project uses Java 17 or newer; the Maven wrapper manages Maven. For deployment, set `VITE_API_URL` to the public API base URL.
 
-### Demonstration accounts (local MySQL profile only)
+### Demonstration accounts (local development only)
 
 | Role | Email | Password |
 |---|---|---|

@@ -4,17 +4,8 @@ cd /d "%~dp0backend"
 
 if not exist mvnw.cmd (
   echo ERROR: backend/mvnw.cmd was not found.
-  echo This launcher should start inside the backend folder.
   pause
   exit /b 1
-)
-
-if not defined SPRING_PROFILES_ACTIVE set SPRING_PROFILES_ACTIVE=mysql
-echo Starting Echo backend from: %CD%
-echo Profile: %SPRING_PROFILES_ACTIVE%
-if /I "%SPRING_PROFILES_ACTIVE%"=="mysql" (
-  echo Using MySQL. Ensure the server and echo_waste database are available.
-  echo MySQL credentials are read from DB_URL, DB_USER and DB_PASSWORD.
 )
 
 set "BACKEND_PORT=%PORT%"
@@ -27,15 +18,15 @@ if "%BACKEND_STATE%"=="0" (
 )
 if "%BACKEND_STATE%"=="2" (
   echo.
-  echo ERROR: Port %BACKEND_PORT% is occupied, but it did not respond as Echo.
-  echo Identify the other program before stopping it, or configure a different PORT.
+  echo ERROR: Port %BACKEND_PORT% is occupied by another process.
+  echo Free port %BACKEND_PORT% or configure a different PORT.
   pause
   exit /b 1
 )
 
+echo Starting Echo backend on port %BACKEND_PORT%...
 call mvnw.cmd spring-boot:run
 if errorlevel 1 (
-  echo ERROR: backend stopped. Read the first Caused by line above for the root cause.
-  echo Check that MySQL is running and the echo_waste database and credentials are configured.
+  echo ERROR: Backend stopped unexpectedly.
 )
 pause
