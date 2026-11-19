@@ -8,6 +8,8 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -20,6 +22,21 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(ApiException.class)
     ResponseEntity<ApiDtos.Message> api(ApiException exception) {
         return ResponseEntity.status(exception.getStatus()).body(new ApiDtos.Message(exception.getMessage()));
+    }
+
+    // Method-security denials are thrown inside the controller proxy, so the generic
+    // Exception handler would otherwise turn them into 500 responses before the
+    // security filter chain can translate them. Handle them explicitly instead.
+    @ExceptionHandler(AccessDeniedException.class)
+    ResponseEntity<ApiDtos.Message> accessDenied(AccessDeniedException exception) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body(new ApiDtos.Message("You do not have permission to perform this action."));
+    }
+
+    @ExceptionHandler(AuthenticationException.class)
+    ResponseEntity<ApiDtos.Message> authentication(AuthenticationException exception) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(new ApiDtos.Message("Authentication required."));
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

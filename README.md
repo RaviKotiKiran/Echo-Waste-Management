@@ -123,13 +123,13 @@ Important production settings:
 - `DB_USER` and `DB_PASSWORD` from the database provider
 - `JWT_SECRET` set to a private random value of at least 32 characters
 - `FRONTEND_URL=https://<your-vercel-domain>`
-- `VITE_API_URL=https://<your-render-api-domain>/api`
+- `VITE_API_URL=https://echo-waste-management.onrender.com/api`
 
 Never commit real environment values. The local `dev` signing key and demo passwords are for development only.
 
 ## Deployment
 
-For a prepared deployment path using Vercel, Railway, and MySQL, follow [DEPLOYMENT.md](DEPLOYMENT.md). Production schema changes run through Flyway migrations; demo account seeding is limited to the local MySQL profile. No service has been deployed or verified yet.
+For deployment details, follow [DEPLOYMENT.md](DEPLOYMENT.md). The Vercel frontend is live at `https://echo-waste-management.vercel.app`; the Render API needs valid external MySQL settings before sign-in and other API features can work. Production schema changes run through Flyway migrations; demo account seeding is limited to local profiles.
 
 ## Security and MVP boundaries
 
